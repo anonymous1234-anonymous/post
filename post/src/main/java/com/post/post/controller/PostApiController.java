@@ -65,51 +65,11 @@ public class PostApiController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            File tempDirFile = new File(TEMP_DIR + dto.getUploadId());
-            if (!tempDirFile.exists()) {
-                tempDirFile.mkdirs();
-            }
+            // 🌟 컨트롤러에서 직접 병합하던 로직을 PostService로 위임합니다.
+            // PostService 내부에서 마지막 청크일 경우 병합 + 임시폴더 삭제 + file_meta DB 저장을 모두 수행합니다.
+            String savedFileName = postService.processChunkUpload(dto);
 
-            // 1. 현재 청크 조각 임시 저장
-            File chunkFile = new File(tempDirFile, "chunk_" + dto.getChunkIndex());
-            dto.getFile().transferTo(chunkFile);
-
-            boolean completed = false;
-            String savedFileName = null;
-
-            // 2. 마지막 청크인지 검사
-            File[] chunks = tempDirFile.listFiles((dir, name) -> name.startsWith("chunk_"));
-            if (chunks != null && chunks.length == dto.getTotalChunks()) {
-
-                // 3. 최종 파일 병합 수행
-                String ext = dto.getOriginalName().substring(dto.getOriginalName().lastIndexOf("."));
-                savedFileName = UUID.randomUUID().toString() + ext;
-                File targetFile = new File(UPLOAD_DIR + savedFileName);
-
-                if (!targetFile.getParentFile().exists()) {
-                    targetFile.getParentFile().mkdirs();
-                }
-
-                try (BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(targetFile, true))) {
-                    for (int i = 0; i < dto.getTotalChunks(); i++) {
-                        File cFile = new File(tempDirFile, "chunk_" + i);
-                        Files.copy(cFile.toPath(), bout);
-                    }
-                }
-
-                // 4. 임시 청크 파일 및 폴더 정리
-                for (int i = 0; i < dto.getTotalChunks(); i++) {
-                    File cFile = new File(tempDirFile, "chunk_" + i);
-                    if (cFile.exists()) {
-                        cFile.delete();
-                    }
-                }
-                if (tempDirFile.exists()) {
-                    tempDirFile.delete();
-                }
-
-                completed = true;
-            }
+            boolean completed = (savedFileName != null);
 
             Map<String, Object> data = new HashMap<>();
             data.put("completed", completed);

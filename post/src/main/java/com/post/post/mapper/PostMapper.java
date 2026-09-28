@@ -1,5 +1,6 @@
 package com.post.post.mapper;
 
+import com.post.post.dto.FileMetaDataDto;
 import com.post.post.dto.PostDto;
 import com.post.post.dto.PostImageDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -28,7 +29,7 @@ public interface PostMapper {
     );
 
     void save(PostDto post);
-    
+
     void delete(Long postId);
 
     void update(PostDto post);
@@ -55,4 +56,6 @@ public interface PostMapper {
             @Param("uploadId") Long uploadId,
             @Param("imageOrder") int imageOrder
     );
+
+    void saveFileMeta(FileMetaDataDto metadataDto);
 }

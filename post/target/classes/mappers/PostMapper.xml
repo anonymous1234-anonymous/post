@@ -234,4 +234,22 @@
         DELETE FROM POST WHERE POST_ID = #{postId}
     </delete>
 
+
+    <insert id="saveFileMeta" parameterType="com.post.post.dto.FileMetaDataDto" useGeneratedKeys="true" keyProperty="fileId">
+        INSERT INTO file_meta (
+        original_file_name,
+        stored_file_name,
+        file_path,
+        file_size,
+        is_deleted
+        )
+        VALUES (
+        #{originalFileName},
+        #{storedFileName},
+        #{filePath},
+        #{fileSize},
+        'N'
+        )
+    </insert>
+
 </mapper>

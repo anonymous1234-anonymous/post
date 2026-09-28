@@ -14,15 +14,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class PostService {
+
+    // 🌟 1. 청크 및 최종 파일 저장 경로 상수 선언
+    private final String TEMP_DIR = "C:/uploads/temp/";
+    private final String UPLOAD_DIR = "C:/uploads/files/";
 
     private final PostMapper postMapper;
     private final FileUploadUtil fileUploadUtil;
@@ -44,59 +51,62 @@ public class PostService {
     }
 
     /**
-     * 대용량 파일 청크(조각) 임시 저장 및 마지막 청크 도달 시 자동 병합 처리
-     * (PostApiController의 /upload-chunk에서 호출하는 메서드)
+     * 파일 청크 처리, 최종 병합 및 DB 메타데이터 저장
      */
+    @Transactional
     public String processChunkUpload(ChunkDto dto) throws IOException {
-        File tempDir = new File(postUploadDir + "/temp/" + dto.getUploadId());
-        if (!tempDir.exists()) {
-            tempDir.mkdirs();
+        File tempDirFile = new File(TEMP_DIR + dto.getUploadId());
+        if (!tempDirFile.exists()) {
+            tempDirFile.mkdirs();
         }
 
-        // 1. 현재 청크 파일 임시 저장
-        File chunkFile = new File(tempDir, "chunk_" + dto.getChunkIndex());
+        // 1. 현재 청크 조각 임시 저장
+        File chunkFile = new File(tempDirFile, "chunk_" + dto.getChunkIndex());
         dto.getFile().transferTo(chunkFile);
 
-        // 2. 모든 청크가 다 전송되었는지 확인
-        boolean isAllUploaded = true;
-        for (int i = 0; i < dto.getTotalChunks(); i++) {
-            File f = new File(tempDir, "chunk_" + i);
-            if (!f.exists()) {
-                isAllUploaded = false;
-                break;
-            }
-        }
+        // 2. 마지막 청크인지 검사
+        File[] chunks = tempDirFile.listFiles((dir, name) -> name.startsWith("chunk_"));
+        if (chunks != null && chunks.length == dto.getTotalChunks()) {
 
-        // 3. 모든 청크가 모였다면 최종 병합 수행 및 temp 폴더 자동 삭제
-        if (isAllUploaded) {
-            String originName = (dto.getOriginalName() != null) ? dto.getOriginalName() : "unknown";
-            String savedFileName = UUID.randomUUID().toString() + "_" + originName;
+            // 3. 최종 파일 병합 수행
+            String ext = dto.getOriginalName().substring(dto.getOriginalName().lastIndexOf("."));
+            String savedFileName = UUID.randomUUID().toString() + ext;
+            File targetFile = new File(UPLOAD_DIR + savedFileName);
 
-            File finalDirFile = new File(postUploadDir);
-            if (!finalDirFile.exists()) {
-                finalDirFile.mkdirs();
+            if (!targetFile.getParentFile().exists()) {
+                targetFile.getParentFile().mkdirs();
             }
 
-            File finalFile = new File(postUploadDir, savedFileName);
-
-            // 청크들을 순서대로 합치기
-            try (FileOutputStream fos = new FileOutputStream(finalFile, true)) {
+            try (BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(targetFile, true))) {
                 for (int i = 0; i < dto.getTotalChunks(); i++) {
-                    File f = new File(tempDir, "chunk_" + i);
-                    Files.copy(f.toPath(), fos);
-                    f.delete(); // 개별 조각 파일 삭제
+                    File cFile = new File(tempDirFile, "chunk_" + i);
+                    Files.copy(cFile.toPath(), bout);
                 }
             }
 
-            // 임시 디렉토리 자체 삭제 (자동 클린업)
-            if (tempDir.exists()) {
-                tempDir.delete();
+            // 4. 임시 청크 파일 및 폴더 정리
+            for (int i = 0; i < dto.getTotalChunks(); i++) {
+                File cFile = new File(tempDirFile, "chunk_" + i);
+                if (cFile.exists()) {
+                    cFile.delete();
+                }
             }
+            if (tempDirFile.exists()) {
+                tempDirFile.delete();
+            }
+// 5. DB에 파일 메타데이터 저장 (DTO 방식)
+            com.post.post.dto.FileMetaDataDto fileMetaDataDto = new com.post.post.dto.FileMetaDataDto();
+            fileMetaDataDto.setOriginalFileName(dto.getOriginalName());
+            fileMetaDataDto.setStoredFileName(savedFileName);
+            fileMetaDataDto.setFilePath(UPLOAD_DIR + savedFileName);
+            fileMetaDataDto.setFileSize(targetFile.length());
 
-            return savedFileName; // 병합 완료된 최종 파일명 반환
+            postMapper.saveFileMeta(fileMetaDataDto); // DTO 객체 전달
+            return savedFileName; // 마지막 청크 완료 시 저장된 파일명 반환
         }
 
-        return null; // 아직 모든 청크가 오지 않았음
+
+        return null; // 중간 청크일 때는 null 반환
     }
 
     /**
@@ -158,6 +168,7 @@ public class PostService {
             }
         }
     }
+
     @Transactional
     public void updateWithFiles(PostDto postDto, List<Long> deleteImageIds, List<String> savedFileNames) {
         Long postId = postDto.getPostId();
@@ -171,7 +182,7 @@ public class PostService {
             }
         }
 
-        // 2. 새로 추가된 파일명 리스트가 있다면 DB 저장 처리 (청크 업로드로 이미 서버에 저장된 파일명 활용)
+        // 2. 새로 추가된 파일명 리스트가 있다면 DB 저장 처리
         if (savedFileNames != null && !savedFileNames.isEmpty()) {
             List<PostImageDto> existingImages = postMapper.findImagesByPostId(postId);
             int imageOrder = existingImages.size();
@@ -219,7 +230,6 @@ public class PostService {
         return list;
     }
 
-    // 🌟 에러 해결을 위해 delete 및 deleteById 메서드 모두 제공
     public void delete(Long postId) {
         deleteById(postId);
     }
