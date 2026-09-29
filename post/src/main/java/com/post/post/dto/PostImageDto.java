@@ -4,22 +4,16 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class PostImageDto {
 
     private Long uploadId;
     private Long postId;
     private String originName;
+    private String storedName;
     private String uploadPath;
+    private Long fileSize;      // 🌟 이 필드를 추가해 주세요!
     private Integer imageOrder;
-
-
-    @Builder
-    public PostImageDto(Long uploadId, Long postId, String originName, String uploadPath, Integer imageOrder) {
-        this.uploadId = uploadId;
-        this.postId = postId;
-        this.originName = originName;
-        this.uploadPath = uploadPath;
-        this.imageOrder = imageOrder;
-    }
 }

@@ -18,7 +18,6 @@
     </a>
   </header>
   <nav class="zt-mobile-nav" aria-label="모바일 메뉴">
-    <a href="${pageContext.request.contextPath}/home" class="" aria-label="home"><i class="bi bi-house"></i></a>
     <a href="${pageContext.request.contextPath}/main-post" class="" aria-label="post"><i class="bi bi-grid-3x3-gap"></i></a>
     <a href="${pageContext.request.contextPath}/new-post" class="active" aria-label="new"><i class="bi bi-plus-square"></i></a>
 
@@ -169,7 +168,7 @@
 
   </div>
 </div>
-
+<script src="${pageContext.request.contextPath}/assets/js/client.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/post-preview.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
 </body>

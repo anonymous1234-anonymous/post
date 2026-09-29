@@ -58,19 +58,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isImage) {
             mediaElement.innerHTML = `<img src="${currentPreviewUrl}" alt="${file.name}" style="max-width: 100%; max-height: 250px; width: auto; height: auto; object-fit: contain; border-radius: 8px;">`;
         } else if (isVideo) {
-            mediaElement.innerHTML = `
-                <div class="text-center p-4">
-                    <i class="bi bi-file-earmark-play-fill display-4 mb-2 text-danger"></i>
-                    <p class="mb-1">${file.name}</p>
-                    <small class="text-muted">동영상 파일이 선택되었습니다.</small>
-                </div>
-            `;
+            // 🛡️ 동영상 미리보기 및 보안/다운로드 방지 속성 적용 완료
+            const videoEl = document.createElement("video");
+            videoEl.src = currentPreviewUrl;
+            videoEl.controls = true;
+            videoEl.controlsList = "nodownload"; // 브라우저 기본 다운로드 버튼 숨기기
+            videoEl.disablePictureInPicture = true; // 팝업(PIP) 모드 차단
+            videoEl.setAttribute("oncontextmenu", "return false;"); // 우클릭 메뉴 차단
+            videoEl.style.cssText = "max-width: 100%; max-height: 250px; width: auto; height: auto; border-radius: 8px;";
+
+            mediaElement.appendChild(videoEl);
         } else if (isAudio) {
             mediaElement.innerHTML = `
                 <div class="text-center p-4">
                     <i class="bi bi-file-earmark-music display-4 mb-2 text-primary"></i>
                     <p class="mb-1">${file.name}</p>
-                    <audio src="${currentPreviewUrl}" controls class="w-100 mt-2"></audio>
+                    <audio src="${currentPreviewUrl}" controls class="w-100 mt-2" controlsList="nodownload"></audio>
                 </div>
             `;
         } else {
@@ -184,7 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
             renderThumbnails();
         }
     });
-// 🌟 폼 제출 시 선택된 파일들을 청크로 나누어 업로드하고 데이터 전송
+
+    // 🌟 폼 제출 시 선택된 파일들을 청크로 나누어 업로드하고 데이터 전송
     const postForm = document.querySelector("#post-form");
     if (postForm) {
         postForm.addEventListener("submit", async (e) => {
@@ -263,4 +267,5 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (submitBtn) submitBtn.disabled = false;
             }
         });
-    }});
+    }
+});

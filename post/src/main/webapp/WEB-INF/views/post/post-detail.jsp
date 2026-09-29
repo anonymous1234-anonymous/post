@@ -72,7 +72,6 @@
                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: ${status.first ? 'flex' : 'none'}; align-items: center; justify-content: center; background: #000;"
                        data-index="${status.index}">
 
-                      <%-- 🌟 수정 포인트: /uploads/post/ -> /uploads/ 로 경로 일치화 --%>
                     <c:set var="resolvedPath" value="${pageContext.request.contextPath}/uploads/${image.uploadPath}" />
                     <c:set var="lowerPath" value="${fn:toLowerCase(image.uploadPath)}" />
 
@@ -86,14 +85,21 @@
                       </c:when>
 
                       <c:when test="${isVideo}">
-                        <video src="${resolvedPath}" controls preload="metadata" style="width: 100%; height: 100%; object-fit: contain;"></video>
+                        <%-- 🛡️ 동영상 보안 속성 추가 (다운로드 버튼 숨김, 우클릭 차단, PiP 모드 차단) --%>
+                        <video src="${resolvedPath}"
+                               controls
+                               preload="metadata"
+                               controlsList="nodownload"
+                               oncontextmenu="return false;"
+                               disablePictureInPicture="true"
+                               style="width: 100%; height: 100%; object-fit: contain;"></video>
                       </c:when>
 
                       <c:when test="${isAudio}">
                         <div class="text-center text-white">
                           <i class="bi bi-file-earmark-music display-1 mb-3"></i>
                           <p><c:out value="${image.originName}"/></p>
-                          <audio src="${resolvedPath}" controls class="w-75"></audio>
+                          <audio src="${resolvedPath}" controls class="w-75" controlsList="nodownload"></audio>
                         </div>
                       </c:when>
 
@@ -162,7 +168,7 @@
   </div>
 </div>
 
-
+<script src="${pageContext.request.contextPath}/assets/js/client.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
 </body>
 </html>

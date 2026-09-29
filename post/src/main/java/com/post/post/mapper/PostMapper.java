@@ -20,6 +20,7 @@ public interface PostMapper {
     );
 
 
+
     int countAll(@Param("keyword") String keyword);
 
     PostDto findById(@Param("postId") Long postId);
@@ -27,6 +28,7 @@ public interface PostMapper {
     List<PostImageDto> findImagesByPostId(
             @Param("postId") Long postId
     );
+
 
     void save(PostDto post);
 
