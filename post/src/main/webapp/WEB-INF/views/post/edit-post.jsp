@@ -188,7 +188,7 @@
 
   </div>
 </div>
-
+<script src="${pageContext.request.contextPath}/assets/js/post-edit.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/post-detail.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
 </body>

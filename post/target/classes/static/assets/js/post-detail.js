@@ -28,10 +28,14 @@ document.addEventListener("DOMContentLoaded", () => {
                              style="max-width: 100%; max-height: 500px; width: auto; height: auto; object-fit: contain; border-radius: 8px;">
                     `;
                 } else if (isVideo) {
+                    // 🛡️ [보안 적용] 상세 보기 동영상 다운로드 방지 및 우클릭 차단 속성 추가 완료
                     itemDiv.innerHTML = `
                         <video src="${fileUrl}" 
                                controls 
                                preload="metadata" 
+                               controlsList="nodownload" 
+                               oncontextmenu="return false;" 
+                               disablePictureInPicture="true"
                                style="max-width: 100%; max-height: 500px; width: 100%; height: auto; object-fit: contain; border-radius: 8px; background: #000;"></video>
                     `;
                 } else if (isAudio) {
@@ -39,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="p-3 border rounded bg-light">
                             <i class="bi bi-file-earmark-music display-4 mb-2"></i>
                             <p class="mb-2">${file.originalName || '오디오 파일'}</p>
-                            <audio src="${fileUrl}" controls class="w-100"></audio>
+                            <audio src="${fileUrl}" controls class="w-100" controlsList="nodownload"></audio>
                         </div>
                     `;
                 } else {
@@ -126,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================
-// 3. [청크 단위 파일 업로드 및 병합 헬퍼 함수 - 수정본]
+// 3. [청크 단위 파일 업로드 및 병합 헬퍼 함수]
 // ==========================================
 async function uploadFileWithChunkAndMerge(file) {
     const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB 단위 설정
@@ -167,8 +171,6 @@ async function uploadFileWithChunkAndMerge(file) {
                 throw new Error(result.message || "청크 업로드 실패");
             }
 
-            // [수정 포인트] 마지막 청크이거나, 서버가 응답 데이터에 파일명을 담아준 경우에만 저장
-            // 백엔드 구현에 따라 result 자체에 값이 올 수도 있으므로 안전하게 여러 경로를 체크합니다.
             const targetData = result.data !== undefined ? result.data : result;
 
             if (targetData) {
@@ -179,13 +181,11 @@ async function uploadFileWithChunkAndMerge(file) {
                 }
             }
 
-            // 만약 서버 응답 객체에 직접 속성이 있다면 추가 확인 (예: result.savedFileName)
             if (!finalSavedFileName && result.savedFileName) {
                 finalSavedFileName = result.savedFileName;
             }
         }
 
-        // 루프가 끝났는데도 최종 파일명이 없다면 서버 응답 구조를 개발자 도구 콘솔로 확인해봐야 합니다.
         if (!finalSavedFileName) {
             console.error("파일 병합은 되었으나 최종 파일명이 반환되지 않았습니다. 서버 응답을 확인하세요.");
             throw new Error("최종 파일명을 가져오지 못했습니다.");

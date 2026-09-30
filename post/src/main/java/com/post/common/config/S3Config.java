@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import java.net.URI;
 
 @Configuration
-class S3Config { // <-- public을 제거했습니다.
+public class S3Config {
 
     @Value("${aws.s3.region}")
     private String region;

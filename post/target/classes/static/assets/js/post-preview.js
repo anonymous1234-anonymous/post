@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const maxFileCount = 10;
+    const maxFileCount = 5;
     const uploader = document.querySelector("[data-post-image-uploader]");
     const imageInput = document.querySelector("#new-post-image");
     const emptyMessage = document.querySelector("#post-image-empty");
@@ -58,7 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isImage) {
             mediaElement.innerHTML = `<img src="${currentPreviewUrl}" alt="${file.name}" style="max-width: 100%; max-height: 250px; width: auto; height: auto; object-fit: contain; border-radius: 8px;">`;
         } else if (isVideo) {
-            // 🛡️ 동영상 미리보기 및 보안/다운로드 방지 속성 적용 완료
+
+            // 🛡️ 동영상 미리보기 및 보안/다운로드 방지 속성 적용
             const videoEl = document.createElement("video");
             videoEl.src = currentPreviewUrl;
             videoEl.controls = true;
