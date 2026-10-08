@@ -24,10 +24,13 @@ public class PageResponse {
         this.size = pageRequest.getSize();
 
         this.totalPages = (int) Math.ceil((double) totalCount / size);
+        if (this.totalPages == 0) {
+            this.totalPages = 1; // 데이터가 없을 때 최소 1페이지로 설정
+        }
 
-        // 페이지네이션 시작/끝 번호 계산 로직 (기존 구현 유지)
-        this.startPage = ((page - 1) / 10) * 10 + 1;
-        this.endPage = Math.min(startPage + 9, totalPages);
+        // 페이지네이션 시작/끝 번호 계산 로직
+        this.startPage = ((page - 1) / 5) * 5 + 1;
+        this.endPage = Math.min(startPage + 4, totalPages);
         this.prev = startPage > 1;
         this.next = endPage < totalPages;
     }

@@ -35,7 +35,7 @@
 
       <header class="zt-page-header">
         <h1>게시물 수정하기</h1>
-        <p>사진, 동영상 및 게시물 정보를 수정합니다.</p>
+        <p>사진 및 동영상, 게시물 정보를 수정합니다.</p>
       </header>
 
       <section class="zt-panel zt-profile-card">
@@ -112,16 +112,16 @@
                 </div>
               </div>
 
-              <%-- 새 파일 추가 인풋 --%>
+              <%-- 새 파일 추가 인풋 (오디오 제거, 최대 5개 제한 반영) --%>
               <div class="mb-3 mt-4">
                 <label class="form-label fw-bold" for="new-post-image">새 파일 추가</label>
                 <input id="new-post-image"
                        name="files"
                        type="file"
-                       accept="image/*,video/*,audio/*"
+                       accept="image/*,video/*"
                        multiple
                        class="form-control">
-                <small class="text-muted">최대 10개까지 업로드 가능합니다.</small>
+                <small class="text-muted">이미지 및 동영상은 최대 5개까지 업로드 가능합니다.</small>
               </div>
 
             </div>

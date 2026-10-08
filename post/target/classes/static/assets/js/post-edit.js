@@ -27,8 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (files.length === 0) return;
 
             // 최대 10개 제한 체크
-            if (selectedFilesArray.length + files.length > 10) {
-                alert("파일은 최대 10개까지 업로드할 수 있습니다.");
+            if (selectedFilesArray.length + files.length > 5) {
+                alert("파일은 최대 5개까지 업로드할 수 있습니다.");
                 return;
             }
 

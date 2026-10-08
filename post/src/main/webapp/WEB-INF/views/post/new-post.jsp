@@ -20,7 +20,6 @@
   <nav class="zt-mobile-nav" aria-label="모바일 메뉴">
     <a href="${pageContext.request.contextPath}/main-post" class="" aria-label="post"><i class="bi bi-grid-3x3-gap"></i></a>
     <a href="${pageContext.request.contextPath}/new-post" class="active" aria-label="new"><i class="bi bi-plus-square"></i></a>
-
   </nav>
 
   <div class="zt-layout">
@@ -33,7 +32,7 @@
 
       <header class="zt-page-header">
         <h1>새 게시물 만들기</h1>
-        <p>사진, 동영상, 오디오 및 파일들을 입력합니다.</p>
+        <p>사진 및 동영상을 업로드합니다.</p>
       </header>
 
       <section class="zt-panel zt-profile-card">
@@ -43,7 +42,6 @@
           </div>
         </c:if>
 
-
         <form class="row g-4"
               id="post-form"
               action="${pageContext.request.contextPath}/api/posts"
@@ -52,17 +50,17 @@
 
           <div class="col-lg-6">
             <div class="zt-post-image-uploader" data-post-image-uploader>
-              <!-- 수정 후 (id="post-main-preview" 추가) -->
               <div id="post-main-preview" class="zt-post-main-preview position-relative" style="min-height: 250px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 8px; overflow: hidden;">
 
                 <!-- 빈 상태 메시지 -->
                 <div id="post-image-empty" class="zt-post-image-empty text-center p-4">
                   <i class="bi bi-folder-plus display-5"></i>
                   <strong>파일을 선택하세요</strong>
-                  <p class="mb-0"><small>이미지, 동영상, 오디오 등 최대 10개까지 선택할 수 있습니다.</small></p>
+                  <!-- 🌟 안내 문구 5개로 수정 -->
+                  <p class="mb-0"><small>이미지 및 동영상은 최대 5개까지 선택할 수 있습니다.</small></p>
                 </div>
 
-                <!-- 통합 메인 미디어 뷰어 영역 (이미지, 비디오, 오디오 모두 여기서 렌더링) -->
+                <!-- 통합 메인 미디어 뷰어 영역 (이미지, 비디오 렌더링) -->
                 <div id="dynamic-media-view" style="width: 100%; height: 100%; display: none; align-items: center; justify-content: center;"></div>
 
                 <!-- 슬라이더 버튼 -->
@@ -76,18 +74,20 @@
                   <i class="bi bi-plus-lg"></i>
                   <span>파일</span>
 
+                  <!-- 🌟 accept에서 audio/* 제거 (이미지, 비디오만 허용) -->
                   <input id="new-post-image"
                          name="files"
                          type="file"
-                         accept="image/*,video/*,audio/*"
+                         accept="image/*,video/*"
                          multiple
                          class="d-none">
 
                 </label>
               </div>
 
+              <!-- 🌟 최대 개수 5개로 표기 수정 -->
               <p class="zt-post-image-count mt-2 text-center">
-                <strong id="post-image-count">0</strong> / 10
+                <strong id="post-image-count">0</strong> / 5
               </p>
 
             </div>

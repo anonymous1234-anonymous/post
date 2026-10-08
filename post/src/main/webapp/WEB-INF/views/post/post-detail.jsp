@@ -75,9 +75,9 @@
                     <c:set var="resolvedPath" value="${pageContext.request.contextPath}/uploads/${image.uploadPath}" />
                     <c:set var="lowerPath" value="${fn:toLowerCase(image.uploadPath)}" />
 
+                    <%-- 🌟 이미지와 동영상만 허용하도록 판별식 정의 (오디오 및 기타 파일 제외) --%>
                     <c:set var="isImage" value="${fn:contains(lowerPath, '.jpg') || fn:contains(lowerPath, '.jpeg') || fn:contains(lowerPath, '.png') || fn:contains(lowerPath, '.gif') || fn:contains(lowerPath, '.webp')}" />
                     <c:set var="isVideo" value="${fn:contains(lowerPath, '.mp4') || fn:contains(lowerPath, '.webm') || fn:contains(lowerPath, '.mov') || fn:contains(lowerPath, '.avi')}" />
-                    <c:set var="isAudio" value="${fn:contains(lowerPath, '.mp3') || fn:contains(lowerPath, '.wav') || fn:contains(lowerPath, '.ogg') || fn:contains(lowerPath, '.m4a') || fn:contains(lowerPath, '.flac')}" />
 
                     <c:choose>
                       <c:when test="${isImage}">
@@ -85,7 +85,7 @@
                       </c:when>
 
                       <c:when test="${isVideo}">
-                        <%-- 🛡️ 동영상 보안 속성 추가 (다운로드 버튼 숨김, 우클릭 차단, PiP 모드 차단) --%>
+                        <%-- 🛡️ 동영상 보안 속성 유지 --%>
                         <video src="${resolvedPath}"
                                controls
                                preload="metadata"
@@ -95,21 +95,10 @@
                                style="width: 100%; height: 100%; object-fit: contain;"></video>
                       </c:when>
 
-                      <c:when test="${isAudio}">
-                        <div class="text-center text-white">
-                          <i class="bi bi-file-earmark-music display-1 mb-3"></i>
-                          <p><c:out value="${image.originName}"/></p>
-                          <audio src="${resolvedPath}" controls class="w-75" controlsList="nodownload"></audio>
-                        </div>
-                      </c:when>
-
                       <c:otherwise>
+                        <%-- 혹시라도 예외 상황이나 잘못 들어온 파일일 경우 방어 로직 --%>
                         <div class="text-center text-white">
-                          <i class="bi bi-file-earmark-arrow-down display-1 mb-3"></i>
-                          <p class="mb-3"><c:out value="${image.originName}"/></p>
-                          <a href="${resolvedPath}" download class="btn btn-light btn-sm">
-                            <i class="bi bi-download"></i> 파일 다운로드
-                          </a>
+                          <p class="mb-0">지원하지 않는 형식의 미디어입니다.</p>
                         </div>
                       </c:otherwise>
                     </c:choose>
